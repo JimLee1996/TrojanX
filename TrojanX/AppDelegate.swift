@@ -559,7 +559,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             if addCount > 0 {
                 sendNotify("Add \(addCount) Shadowsocks Server Profile".localized, subtitle, "")
                 mgr.save()
-                self.updateServersMenu()
+                NotificationCenter.default
+                    .post(name: NOTIFY_SERVER_PROFILES_CHANGED, object: nil)
             } else {
                 sendNotify("", "", "Not found valid qrcode or url of shadowsocks profile".localized)
             }
