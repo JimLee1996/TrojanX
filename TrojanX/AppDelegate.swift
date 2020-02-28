@@ -283,7 +283,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
                 .map { URL(string: $0) }
                 .filter { $0 != nil }
                 .map { $0! }
-            urls = urls.filter { $0.scheme == "ss" }
+            urls = urls.filter { $0.scheme == "trojan" }
             
             NotificationCenter.default.post(
                 name: Notification.Name(rawValue: "NOTIFY_FOUND_SS_URL"), object: nil
