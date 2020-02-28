@@ -15,13 +15,8 @@ class ServerProfile: NSObject, NSCopying {
 
     @objc var serverHost: String = ""
     @objc var serverPort: uint16 = 443
-    @objc var method:String = "aes-128-gcm"
     @objc var password:String = ""
     @objc var remark:String = ""
-    
-    // SIP003 Plugin
-    @objc var plugin: String = ""  // empty string disables plugin
-    @objc var pluginOptions: String = ""
     
     override init() {
         uuid = UUID().uuidString
@@ -33,89 +28,14 @@ class ServerProfile: NSObject, NSCopying {
 
     convenience init?(url: URL) {
         self.init()
-
-        func padBase64(string: String) -> String {
-            var length = string.utf8.count
-            if length % 4 == 0 {
-                return string
-            } else {
-                length = 4 - length % 4 + length
-                return string.padding(toLength: length, withPad: "=", startingAt: 0)
-            }
+        if let host = url.host {
+            self.serverHost = host;
         }
-
-        func decodeUrl(url: URL) -> (String?,String?) {
-            let urlStr = url.absoluteString
-            let base64Begin = urlStr.index(urlStr.startIndex, offsetBy: 5)
-            let base64End = urlStr.firstIndex(of: "#")
-            let encodedStr = String(urlStr[base64Begin..<(base64End ?? urlStr.endIndex)])
-            guard let data = Data(base64Encoded: padBase64(string: encodedStr)) else {
-                return (url.absoluteString, nil)
-            }
-            guard let decoded = String(data: data, encoding: String.Encoding.utf8) else {
-                return (nil, nil)
-            }
-            let s = decoded.trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
-            
-            if let index = base64End {
-                let i = urlStr.index(index, offsetBy: 1)
-                let fragment = String(urlStr[i...])
-                return ("ss://\(s)", fragment)
-            }
-            return ("ss://\(s)", nil)
+        if let port = url.port {
+            self.serverPort = uint16(port);
         }
-        let (_decodedUrl, _tag) = decodeUrl(url: url)
-        guard let decodedUrl = _decodedUrl else {
-            return nil
-        }
-        guard let parsedUrl = URLComponents(string: decodedUrl) else {
-            return nil
-        }
-        guard let host = parsedUrl.host, let port = parsedUrl.port,
-            let user = parsedUrl.user else {
-            return nil
-        }
-
-        self.serverHost = host
-        self.serverPort = UInt16(port)
-
-        // This can be overriden by the fragment part of SIP002 URL
-        remark = parsedUrl.queryItems?
-            .filter({ $0.name == "Remark" }).first?.value ?? ""
-
-        if let password = parsedUrl.password {
-            self.method = user.lowercased()
-            self.password = password
-            if let tag = _tag {
-                remark = tag
-            }
-        } else {
-            // SIP002 URL have no password section
-            guard let data = Data(base64Encoded: padBase64(string: user)),
-                let userInfo = String(data: data, encoding: .utf8) else {
-                return nil
-            }
-
-            let parts = userInfo.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
-            if parts.count != 2 {
-                return nil
-            }
-            self.method = String(parts[0]).lowercased()
-            self.password = String(parts[1])
-
-            // SIP002 defines where to put the profile name
-            if let profileName = parsedUrl.fragment {
-                self.remark = profileName
-            }
-        }
-
-        if let pluginStr = parsedUrl.queryItems?
-            .filter({ $0.name == "plugin" }).first?.value {
-            let parts = pluginStr.split(separator: ";", maxSplits: 1)
-            if parts.count == 2 {
-                plugin = String(parts[0])
-                pluginOptions = String(parts[1])
-            }
+        if let pwd = url.user {
+            self.password = pwd;
         }
     }
     
@@ -123,12 +43,8 @@ class ServerProfile: NSObject, NSCopying {
         let copy = ServerProfile()
         copy.serverHost = self.serverHost
         copy.serverPort = self.serverPort
-        copy.method = self.method
         copy.password = self.password
         copy.remark = self.remark
-        
-        copy.plugin = self.plugin
-        copy.pluginOptions = self.pluginOptions
         return copy;
     }
     
@@ -137,16 +53,9 @@ class ServerProfile: NSObject, NSCopying {
             (profile: ServerProfile) in
             profile.serverHost = data["ServerHost"] as! String
             profile.serverPort = (data["ServerPort"] as! NSNumber).uint16Value
-            profile.method = data["Method"] as! String
             profile.password = data["Password"] as! String
             if let remark = data["Remark"] {
                 profile.remark = remark as! String
-            }
-            if let plugin = data["Plugin"] as? String {
-                profile.plugin = plugin
-            }
-            if let pluginOptions = data["PluginOptions"] as? String {
-                profile.pluginOptions = pluginOptions
             }
         }
 
@@ -166,11 +75,8 @@ class ServerProfile: NSObject, NSCopying {
         d["Id"] = uuid as AnyObject?
         d["ServerHost"] = serverHost as AnyObject?
         d["ServerPort"] = NSNumber(value: serverPort as UInt16)
-        d["Method"] = method as AnyObject?
         d["Password"] = password as AnyObject?
         d["Remark"] = remark as AnyObject?
-        d["Plugin"] = plugin as AnyObject
-        d["PluginOptions"] = pluginOptions as AnyObject
         return d
     }
 
@@ -184,13 +90,6 @@ class ServerProfile: NSObject, NSCopying {
         conf["timeout"] = NSNumber(value: UInt32(defaults.integer(forKey: "LocalSocks5.Timeout")) as UInt32)
         conf["server"] = serverHost as AnyObject
         conf["server_port"] = NSNumber(value: serverPort as UInt16)
-
-        if !plugin.isEmpty {
-            // all plugin binaries should be located in the plugins dir
-            // so that we don't have to mess up with PATH envvars
-            conf["plugin"] = "plugins/\(plugin)" as AnyObject
-            conf["plugin_opts"] = pluginOptions as AnyObject
-        }
 
         return conf
     }
@@ -234,59 +133,9 @@ class ServerProfile: NSObject, NSCopying {
         return true
     }
 
-    private func makeLegacyURL() -> URL? {
-        var url = URLComponents()
-
-        url.host = serverHost
-        url.user = method
-        url.password = password
-        url.port = Int(serverPort)
-
-        url.fragment = remark
-
-        let parts = url.string?.replacingOccurrences(
-            of: "//", with: "",
-            options: String.CompareOptions.anchored, range: nil)
-
-        let base64String = parts?.data(using: String.Encoding.utf8)?
-            .base64EncodedString(options: Data.Base64EncodingOptions())
-        if var s = base64String {
-            s = s.trimmingCharacters(in: CharacterSet(charactersIn: "="))
-            return Foundation.URL(string: "ss://\(s)")
-        }
-        return nil
-    }
-
-    func URL(legacy: Bool = false) -> URL? {
-        // If you want the URL from <= 1.5.1
-        if (legacy) {
-            return self.makeLegacyURL()
-        }
-
-        guard let rawUserInfo = "\(method):\(password)".data(using: .utf8) else {
-            return nil
-        }
-        let userInfo = rawUserInfo.base64EncodedString()
-
-        var items: [URLQueryItem] = []
-        if !plugin.isEmpty {
-            let value = "\(plugin);\(pluginOptions)"
-            items.append(URLQueryItem(name: "plugin", value: value))
-        }
-
-        var comps = URLComponents()
-
-        comps.scheme = "ss"
-        comps.host = serverHost
-        comps.port = Int(serverPort)
-        comps.user = userInfo
-        comps.path = "/"  // This is required by SIP0002 for URLs with fragment or query
-        comps.fragment = remark
-        comps.queryItems = items
-
-        let url = try? comps.asURL()
-
-        return url
+    func trojanURL(legacy: Bool = false) -> URL? {
+        let urlString = String(format: "trojan://%@@%@:%ld",password,serverHost,serverPort)
+        return URL(string: urlString)
     }
     
     func title() -> String {

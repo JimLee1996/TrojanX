@@ -45,7 +45,7 @@ class ShareServerProfilesWindowController: NSWindowController
     
     @IBAction func copyURL(_ sender: NSButton) {
         let profile = getSelectedProfile()
-        if profile.isValid(), let url = profile.URL() {
+        if profile.isValid(), let url = profile.trojanURL() {
             let pb = NSPasteboard.general
             pb.clearContents()
             if pb.writeObjects([url.absoluteString as NSPasteboardWriting]) {
@@ -126,7 +126,7 @@ class ShareServerProfilesWindowController: NSWindowController
         let urls = profileMgr.profiles.filter({ (profile) -> Bool in
             return profile.isValid()
         }).map { (profile) -> String in
-            return profile.URL()!.absoluteString
+            return profile.trojanURL()!.absoluteString
         }
         return urls.joined(separator: "\n")
     }
@@ -170,7 +170,7 @@ class ShareServerProfilesWindowController: NSWindowController
     func tableViewSelectionDidChange(_ notification: Notification) {
         if profilesTableView.selectedRow >= 0 {
             let profile = getSelectedProfile()
-            if profile.isValid(), let url = profile.URL() {
+            if profile.isValid(), let url = profile.trojanURL() {
                 let img = createQRImage(url.absoluteString, NSMakeSize(250, 250))
                 qrCodeImageView.image = img
                 

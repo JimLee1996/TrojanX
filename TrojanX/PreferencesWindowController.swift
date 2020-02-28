@@ -148,7 +148,7 @@ class PreferencesWindowController: NSWindowController
         let index = profilesTableView.selectedRow
         if  index >= 0 {
             let profile = profileMgr.profiles[index]
-            let ssURL = profile.URL()
+            let ssURL = profile.trojanURL()
             if let url = ssURL {
                 // Then copy url to pasteboard
                 // TODO Why it not working?? It's ok in objective-c

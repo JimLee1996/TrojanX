@@ -283,7 +283,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
                 .map { URL(string: $0) }
                 .filter { $0 != nil }
                 .map { $0! }
-            urls = urls.filter { $0.scheme == "ss" }
+            urls = urls.filter { $0.scheme == "trojan" }
             
             NotificationCenter.default.post(
                 name: Notification.Name(rawValue: "NOTIFY_FOUND_SS_URL"), object: nil
@@ -559,7 +559,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             if addCount > 0 {
                 sendNotify("Add \(addCount) Shadowsocks Server Profile".localized, subtitle, "")
                 mgr.save()
-                self.updateServersMenu()
+                NotificationCenter.default
+                    .post(name: NOTIFY_SERVER_PROFILES_CHANGED, object: nil)
             } else {
                 sendNotify("", "", "Not found valid qrcode or url of shadowsocks profile".localized)
             }
