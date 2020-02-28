@@ -157,7 +157,7 @@ func SyncSSLocal() {
             if changed {
                 StopSSLocal()
                 DispatchQueue.main.asyncAfter(
-                    deadline: DispatchTime.now() + DispatchTimeInterval.seconds(1),
+                    deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2),
                     execute: {
                         () in
                         StartSSLocal()
