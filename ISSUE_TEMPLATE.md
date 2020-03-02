@@ -1,7 +1,7 @@
 **System and TrojanX version:**
 
 - macOS 10.??.?? (16E????)
-- Trojan 0.?
+- TrojanX 0.?
 
 **Expected behavior:**
 
