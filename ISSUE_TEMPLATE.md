@@ -1,7 +1,7 @@
-**System and Shadowsocksx-NG version:**
+**System and TrojanX version:**
 
 - macOS 10.??.?? (16E????)
-- Shadowsocksx-NG 1.?
+- TrojanX 0.?
 
 **Expected behavior:**
 
@@ -19,16 +19,16 @@
 
 (N/A for feature requests)
 
-**ss-local.log**
+**trojan.log**
 
 Please upload the ss-local.log file here the file is in `~/Library/Logs`
 1) Open 'Advanced Settings -> enable Verbose Mode'
-2) Continue run `Shadowsocksx-NG` for 5 minutes
-3) Upload the `~/Library/Logs/ss-local.log` here (with or without compress)
+2) Continue run `TrojanX` for 5 minutes
+3) Upload the `~/Library/Logs/trojan.log` here (with or without compress)
 
 **Application log**
 
-Open the `Console.app` and search `Shadowsocksx-NG`
+Open the `Console.app` and search `TrojanX`
 Copy paste the log here
 
 **Crash Log**
