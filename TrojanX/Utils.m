@@ -55,7 +55,7 @@ void ScanQRCodeOnScreen() {
         NSArray *features = [detector featuresInImage:[CIImage imageWithCGImage:image]];
         for (CIQRCodeFeature *feature in features) {
             NSLog(@"%@", feature.messageString);
-            if ( [feature.messageString hasPrefix:@"ss://"] )
+            if ( [feature.messageString hasPrefix:@"trojan://"] )
             {
                 NSURL *url = [NSURL URLWithString:feature.messageString];
                 if (url) {
