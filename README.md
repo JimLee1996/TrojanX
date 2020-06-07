@@ -18,10 +18,9 @@ The macOS client of [Trojan](https://github.com/trojan-gfw/trojan)
 - Could update PAC by download GFW List from GitHub.
 - Custom rules for PAC.
 - HTTP Proxy by [privoxy](http://www.privoxy.org/)
-
-~~- Share your server profiles by qrcode or url.~~
-~~- Import server profile urls from pasteboard.~~
-~~- Import server profile by scan QRCode on screen.~~
+- ~~Share your server profiles by qrcode or url.~~
+- ~~Import server profile urls from pasteboard.~~
+- ~~Import server profile by scan QRCode on screen.~~
 
 ## Credits
 
