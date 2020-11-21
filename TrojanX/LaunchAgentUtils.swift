@@ -114,7 +114,7 @@ func writeSSLocalConfFile(profile: ServerProfile) -> Bool {
         let conf_local = "{\"run_type\":\"client\",\"local_addr\":\"" + local_addr + "\",\"local_port\":" + local_port
         let conf_remote = ",\"remote_addr\":\"" + remote_addr + "\",\"remote_port\":" + remote_port
         let conf_pass = ",\"password\":[\"" + password + "\"],"
-        let conf_other = "\"log_level\":2,\"ssl\":{\"verify\":false,\"verify_hostname\":false,\"cert\":\"\",\"cipher\":\"\",\"cipher_tls13\":\"TLS_CHACHA20_POLY1305_SHA256\",\"sni\":\"\",\"alpn\":[\"h2\"],\"reuse_session\":true,\"session_ticket\":false,\"curves\":\"\"},\"tcp\":{\"no_delay\":true,\"keep_alive\":true,\"reuse_port\":false,\"fast_open\":false,\"fast_open_qlen\":20}}"
+        let conf_other = "\"log_level\":1,\"ssl\":{\"verify\":false,\"verify_hostname\":false,\"cert\":\"\",\"cipher\":\"\",\"cipher_tls13\":\"TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256\",\"sni\":\"\",\"alpn\":[\"h2\"],\"reuse_session\":true,\"session_ticket\":false,\"curves\":\"\"},\"tcp\":{\"no_delay\":true,\"keep_alive\":true,\"reuse_port\":false,\"fast_open\":false,\"fast_open_qlen\":20}}"
         
         let confJson = conf_local + conf_remote + conf_pass + conf_other
 
