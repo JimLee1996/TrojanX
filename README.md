@@ -8,6 +8,12 @@ The macOS client of [Trojan](https://github.com/trojan-gfw/trojan)
 
 - macOS 10.11+
 
+Install with [Homebrew](https://brew.sh/):
+
+```shell
+brew install --cask trojanx
+```
+
 ### Building
 
 - Xcode 10.0+
